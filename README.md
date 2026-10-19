@@ -1,5 +1,5 @@
-# Jigsaw AI
 
+<<<<<<< HEAD
 AI-Powered Jigsaw Puzzle Solver: a project built incrementally to reconstruct
 images from shuffled fragments using computer vision, deep learning, and optimization.
 
@@ -194,3 +194,5 @@ Open `http://127.0.0.1:8000/docs` to upload 25 fragments. The service uses the
 existing local checkpoint and stores results under `artifacts/api_results`.
 Dataset split assignments are preserved to prevent leakage. Phases 10 and 11
 are implemented; Phase 12 (interactive reconstruction canvas) requires approval.
+=======
+>>>>>>> 7049350eb76aa1a2bcc02020438f619545b7726a
