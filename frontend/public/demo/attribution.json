@@ -1,0 +1,7 @@
+{
+  "author": "Philo Nordlund",
+  "title": "Scratch",
+  "source_url": "https://www.flickr.com/photos/philon/2461050066",
+  "license": "https://creativecommons.org/licenses/by/2.0/",
+  "modifications": "Orientation handling, proportional resize, center crop, and 5x5 slicing"
+}

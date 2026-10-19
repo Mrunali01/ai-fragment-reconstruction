@@ -25,3 +25,12 @@ outputs/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Local runtimes, database cluster and frontend output
+.tools/
+.local/
+node_modules/
+.next/
+playwright-report/
+test-results/
+*.tsbuildinfo

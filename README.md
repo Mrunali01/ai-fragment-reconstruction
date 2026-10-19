@@ -9,8 +9,7 @@ Phase 0 provides the Python package, development environment, and test setup.
 Phase 1 adds Open Images acquisition, per-photo license evidence, intact-image
 validation, split manifests, and dataset auditing. See [dataset documentation](docs/dataset.md).
 Phase 2 adds reproducible 5 × 5 puzzle generation and ground-truth verification.
-See [fragment documentation](docs/fragments.md). The web application remains a
-future phase.
+See [fragment documentation](docs/fragments.md).
 Phase 3 adds balanced fragment pairs, direction labels, a lazy image loader,
 and independent label auditing. See [pair documentation](docs/pairs.md).
 Phase 4 adds classical edge scoring, greedy reconstruction, and held-out evaluation.
@@ -34,6 +33,44 @@ An additional frozen-model search experiment improved exact reconstruction on
 50 fresh, development-disjoint images from 42/50 to 45/50. See
 [search improvements and holdout protocol](docs/search_improvements.md), including
 the regressions and sample-size limitations.
+Phase 8 adds a shared image-only pipeline, validation-calibrated pair evaluation,
+six classical/CNN search comparisons, raw prediction exports, uncertainty, and
+failure analysis. See [end-to-end evaluation](docs/evaluation.md).
+Phase 9 adds a FastAPI service for fragment uploads, validated reconstruction,
+and retrieval of saved arrangements and PNG results. See [API documentation](docs/api.md).
+Phase 10 adds PostgreSQL puzzle, job and result metadata with images on disk.
+See [database setup](docs/database.md).
+Phase 11 adds a responsive Next.js, TypeScript and Tailwind frontend for fragment
+uploads, solver selection and viewing saved reconstructions. See [frontend setup](docs/frontend.md).
+
+## Run the web application (Windows PowerShell)
+
+From the project root, install the local development runtimes once:
+
+```powershell
+.venv/Scripts/python.exe scripts/setup_tools.py
+.venv/Scripts/python.exe -m pip install -e '.[dev]'
+```
+
+Start the backend and local PostgreSQL database in one terminal:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/start-backend.ps1
+```
+
+Start the frontend in another terminal:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/start-frontend.ps1
+```
+
+Open **http://127.0.0.1:3000**. Choose **Try a sample puzzle**, then
+**Reconstruct puzzle**, or upload 25 upright RGB 64 × 64 PNG/JPEG fragments.
+The sample is attributed CC BY 2.0 imagery; its license and modifications are
+included in `frontend/public/demo/attribution.json`. The CNN requires the existing
+local trained checkpoint; classical matching also works without that checkpoint.
+Press Ctrl+C in each terminal to stop the web servers. Stop PostgreSQL separately
+with `powershell -ExecutionPolicy Bypass -File scripts/stop-database.ps1`.
 
 ## Setup (Windows PowerShell)
 
@@ -140,5 +177,20 @@ Training output must be new/empty. Reconstruct the approved Phase 7 puzzles:
 .\.venv\Scripts\python.exe -m jigsaw_ai.evaluate_reconstruction --split test
 ```
 
-Dataset split assignments are preserved to prevent leakage. Phase 8, end-to-end
-ML evaluation and broader failure analysis, requires separate approval.
+Run the approved Phase 8 evaluation:
+
+```powershell
+.\.venv\Scripts\python.exe -m jigsaw_ai.evaluate_pipeline
+```
+
+Report output must be new/empty; use `--output` for a separate reproduction.
+Start the approved Phase 9 API from the project root:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn jigsaw_ai.api:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/docs` to upload 25 fragments. The service uses the
+existing local checkpoint and stores results under `artifacts/api_results`.
+Dataset split assignments are preserved to prevent leakage. Phases 10 and 11
+are implemented; Phase 12 (interactive reconstruction canvas) requires approval.
