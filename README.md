@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Jigsaw AI
 
 AI-Powered Jigsaw Puzzle Solver: a project built incrementally to reconstruct
@@ -120,3 +121,6 @@ Train and evaluate the approved Phase 6 model:
 
 Training output must be new/empty. Next: neural puzzle reconstruction in separately
 approved Phase 7. Dataset split assignments are preserved to prevent leakage.
+=======
+# ai-fragment-reconstruction
+>>>>>>> 4478592351f502285ce48f53663754d95a431d84
