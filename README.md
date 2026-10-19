@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Jigsaw AI
 
 AI-Powered Jigsaw Puzzle Solver: a project built incrementally to reconstruct
@@ -10,8 +9,8 @@ Phase 0 provides the Python package, development environment, and test setup.
 Phase 1 adds Open Images acquisition, per-photo license evidence, intact-image
 validation, split manifests, and dataset auditing. See [dataset documentation](docs/dataset.md).
 Phase 2 adds reproducible 5 × 5 puzzle generation and ground-truth verification.
-See [fragment documentation](docs/fragments.md). Neural puzzle assembly and the web
-application remain future phases.
+See [fragment documentation](docs/fragments.md). The web application remains a
+future phase.
 Phase 3 adds balanced fragment pairs, direction labels, a lazy image loader,
 and independent label auditing. See [pair documentation](docs/pairs.md).
 Phase 4 adds classical edge scoring, greedy reconstruction, and held-out evaluation.
@@ -20,6 +19,21 @@ Phase 5 adds an untrained Siamese CNN, tensor preparation, and masked losses.
 See [model documentation](docs/model.md).
 Phase 6 adds bounded CPU training, validation-selected checkpoints, learning
 curves, and held-out pair evaluation. See [training documentation](docs/training.md).
+Phase 7 connects frozen CNN scores to greedy puzzle assembly, saves reconstructed
+images, and measures position, border, and exact reconstruction accuracy.
+See [reconstruction documentation](docs/reconstruction.md).
+Additional approved CNN experiments add a boundary Siamese model, hard-negative
+and ranking training, hybrid scoring, and swap refinement. See
+[CNN experiments](docs/cnn_experiments.md) for methodology, measured results,
+and the standalone reconstruction command.
+The trained boundary CNN with swap refinement solved 68/75 existing test puzzles
+exactly, compared with 0/75 for the original CNN and 63/75 for the classical
+baseline. Settings were selected on validation; this test set was previously
+inspected and does not replace a fresh final evaluation.
+An additional frozen-model search experiment improved exact reconstruction on
+50 fresh, development-disjoint images from 42/50 to 45/50. See
+[search improvements and holdout protocol](docs/search_improvements.md), including
+the regressions and sample-size limitations.
 
 ## Setup (Windows PowerShell)
 
@@ -119,8 +133,12 @@ Train and evaluate the approved Phase 6 model:
 .\.venv\Scripts\python.exe -m jigsaw_ai.evaluate_model --split test
 ```
 
-Training output must be new/empty. Next: neural puzzle reconstruction in separately
-approved Phase 7. Dataset split assignments are preserved to prevent leakage.
-=======
-# ai-fragment-reconstruction
->>>>>>> 4478592351f502285ce48f53663754d95a431d84
+Training output must be new/empty. Reconstruct the approved Phase 7 puzzles:
+
+```powershell
+.\.venv\Scripts\python.exe -m jigsaw_ai.evaluate_reconstruction --split validation
+.\.venv\Scripts\python.exe -m jigsaw_ai.evaluate_reconstruction --split test
+```
+
+Dataset split assignments are preserved to prevent leakage. Phase 8, end-to-end
+ML evaluation and broader failure analysis, requires separate approval.
