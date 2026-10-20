@@ -141,9 +141,23 @@ are not retained by this API. Metadata retains their labels, input order, and
 checksums. With `JIGSAW_DATABASE_URL` configured, PostgreSQL is authoritative for
 completed metadata; PNGs stay in this directory. Database read/write outages
 return 503, and a configured database must be reachable at startup. There is no
-list/history endpoint, rerun-by-ID feature, authentication, correction endpoint,
-task queue, or retention policy yet. This is a local development API; deployment
-is planned for Phase 18.
+authentication or retention policy yet. This is a local
+development API; deployment is planned for Phase 18.
+
+Phases 12–17 now add correction versions, a bounded local background worker,
+history, diagnostics, analytics and exports. The endpoint list and current
+semantics are documented in [the feature report](phases_12_17.md). The original
+synchronous endpoints above remain available. Background jobs do not use Redis.
+
+`POST /reconstructions/{id}/reconstruct` accepts a JSON body with `order` (a strict
+permutation of upload indices 0–24), and optional `scorer` / `search` overrides.
+It recovers decoded pixels from the saved lossless mosaic, submits them in that
+order, and returns 202 with a background job. The new result records
+`source_result_id` and `source_order`. Filenames and file hashes are inherited as
+provenance from the original uploads; these are not newly uploaded file bytes.
+The endpoint shares queue limits and model availability checks with normal jobs.
+The source result and its correction versions remain unchanged. A missing saved
+image returns 404; an incompatible saved image returns 409.
 
 ## Code walkthrough
 

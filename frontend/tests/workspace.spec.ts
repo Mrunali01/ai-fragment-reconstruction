@@ -24,9 +24,9 @@ test("validates fragment count and offers a keyboard accessible upload", async (
     page.getByRole("button", { name: "Reconstruct puzzle" }),
   ).toBeDisabled();
   await page.getByLabel("Choose 25 fragments").setInputFiles([demoFile]);
-  await expect(page.getByRole("main").getByRole("alert")).toContainText(
-    "Choose exactly 25 fragments",
-  );
+  await expect(
+    page.getByRole("region", { name: "The bigger picture" }).getByRole("alert"),
+  ).toContainText("Choose exactly 25 fragments");
   await page.getByRole("button", { name: "Drop your fragments here" }).focus();
   await expect(
     page.getByRole("button", { name: "Drop your fragments here" }),
@@ -51,9 +51,9 @@ test("validates fragment count and offers a keyboard accessible upload", async (
       buffer: readFileSync(name),
     })),
   ]);
-  await expect(page.getByRole("main").getByRole("alert")).toContainText(
-    "64 × 64 pixels",
-  );
+  await expect(
+    page.getByRole("region", { name: "The bigger picture" }).getByRole("alert"),
+  ).toContainText("64 × 64 pixels");
 });
 
 test("mobile sample previews, loading, server failure and retry", async ({
@@ -66,7 +66,7 @@ test("mobile sample previews, loading, server failure and retry", async ({
     }),
   );
   let requests = 0;
-  await page.route("**/api/reconstructions", async (route) => {
+  await page.route("**/api/jobs", async (route) => {
     requests++;
     await new Promise((resolve) => setTimeout(resolve, 250));
     await route.fulfill({
@@ -81,15 +81,17 @@ test("mobile sample previews, loading, server failure and retry", async ({
   await expect(
     page.getByRole("button", { name: "Assembling your picture" }),
   ).toBeDisabled();
-  await expect(page.getByRole("main").getByRole("alert")).toHaveText(
-    "Solver is busy; retry shortly",
-  );
+  await expect(
+    page.getByRole("region", { name: "The bigger picture" }).getByRole("alert"),
+  ).toHaveText("Solver is busy; retry shortly");
   await expect(
     page.getByRole("button", { name: "Reconstruct puzzle" }),
   ).toBeEnabled();
   await page.getByRole("button", { name: "Reconstruct puzzle" }).click();
   await expect.poll(() => requests).toBe(2);
-  await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "The bigger picture" }).getByRole("alert"),
+  ).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -139,13 +141,17 @@ test("real CNN reconstruction persists across a page reload", async ({
   await expect(page.getByRole("img", { name: /^Fragment / })).toHaveCount(25);
   const responsePromise = page.waitForResponse(
     (response) =>
-      response.url().endsWith("/api/reconstructions") &&
+      response.url().endsWith("/api/jobs") &&
       response.request().method() === "POST",
   );
   await page.getByRole("button", { name: "Reconstruct puzzle" }).click();
   const response = await responsePromise;
-  expect(response.status()).toBe(201);
-  const result = await response.json();
+  expect(response.status()).toBe(202);
+  await expect(page).toHaveURL(/\?result=/);
+  const resultId = new URL(page.url()).searchParams.get("result");
+  const result = await (
+    await page.request.get(`/api/reconstructions/${resultId}`)
+  ).json();
   expect(
     new Set(
       result.arrangement.map(

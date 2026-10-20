@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import CorrectionWorkspace from "../components/CorrectionWorkspace";
+import ReconstructionHistory from "../components/ReconstructionHistory";
 import {
   apiResponse,
   validateFiles,
@@ -8,6 +10,7 @@ import {
   type Result,
   type Scorer,
   type Search,
+  waitForJob,
 } from "../lib/api";
 
 function PuzzleMark() {
@@ -49,6 +52,7 @@ export default function Home() {
   const [scorer, setScorer] = useState<Scorer>("cnn");
   const [search, setSearch] = useState<Search>("beam");
   const [busy, setBusy] = useState(false);
+  const [jobStatus, setJobStatus] = useState("");
   const [checking, setChecking] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState("");
@@ -124,6 +128,7 @@ export default function Home() {
 
   async function solve() {
     setBusy(true);
+    setJobStatus("uploading");
     setError("");
     setResult(null);
     setImageError(false);
@@ -132,11 +137,17 @@ export default function Home() {
       files.forEach((file) => body.append("pieces", file));
       body.append("scorer", scorer);
       body.append("search", search);
-      const response = await fetch("/api/reconstructions", {
+      const response = await fetch("/api/jobs", {
         method: "POST",
         body,
       });
-      const completed = await apiResponse<Result>(response);
+      const job = await apiResponse<{ id: string }>(response);
+      window.history.replaceState(
+        null,
+        "",
+        `?job=${encodeURIComponent(job.id)}`,
+      );
+      const completed = await waitForJob(job.id, undefined, setJobStatus);
       setResult(completed);
       // A reload can retrieve this persisted result without re-uploading fragments.
       window.history.replaceState(
@@ -156,7 +167,25 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("result");
+    const params = new URLSearchParams(window.location.search);
+    const job = params.get("job");
+    if (job && /^[0-9a-f-]{36}$/i.test(job)) {
+      const controller = new AbortController();
+      setBusy(true);
+      waitForJob(job, controller.signal, setJobStatus)
+        .then((completed) => {
+          setResult(completed);
+          window.history.replaceState(null, "", `?result=${completed.id}`);
+        })
+        .catch((error) => {
+          if (!controller.signal.aborted) setError(error.message);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setBusy(false);
+        });
+      return () => controller.abort();
+    }
+    const id = params.get("result");
     if (!id) return;
     if (!/^[0-9a-f-]{36}$/i.test(id)) {
       setError("Invalid saved result link.");
@@ -401,13 +430,30 @@ export default function Home() {
                 <h3 id="result-heading">The bigger picture</h3>
               </div>
               <span className={`pill ${result ? "success-pill" : ""}`}>
-                {busy ? "Working" : result ? "Assembled" : "Awaiting pieces"}
+                {busy
+                  ? jobStatus === "queued"
+                    ? "Queued"
+                    : jobStatus === "running"
+                      ? "Running"
+                      : "Working"
+                  : result
+                    ? "Assembled"
+                    : "Awaiting pieces"}
               </span>
             </div>
             {error && (
               <div className="error" role="alert">
                 {error}
               </div>
+            )}
+            {busy && (
+              <p role="status" className="canvas-help">
+                {jobStatus === "queued"
+                  ? "Your job is queued behind another reconstruction."
+                  : jobStatus === "running"
+                    ? "The solver is running. You can reload this page to resume tracking."
+                    : "Uploading fragments or retrieving the saved result…"}
+              </p>
             )}
             <div className={`result-stage ${result ? "has-result" : ""}`}>
               {result ? (
@@ -483,6 +529,8 @@ export default function Home() {
             )}
           </section>
         </div>
+        {result && <CorrectionWorkspace key={result.id} result={result} />}
+        <ReconstructionHistory refreshKey={result?.id ?? "initial"} />
         <section className="process-strip" aria-label="How it works">
           <div>
             <span>01 / UPLOAD</span>

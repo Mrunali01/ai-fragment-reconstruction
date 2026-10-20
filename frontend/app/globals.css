@@ -1,5 +1,182 @@
 @import "tailwindcss";
 
+.rerun-control {
+  display: contents;
+}
+.canvas-actions .reconstruct-button {
+  background: #2d6651;
+  color: #fff;
+  border-color: #2d6651;
+  font-weight: 600;
+}
+.rerun-options,
+.rerun-note {
+  flex-basis: 100%;
+}
+.rerun-options {
+  font-size: 12px;
+  margin-top: 10px;
+}
+.rerun-options summary {
+  cursor: pointer;
+}
+.rerun-options .settings {
+  max-width: 420px;
+  margin-top: 10px;
+}
+
+.canvas-panel {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid #dce5d6;
+  border-radius: 14px;
+  background: white;
+}
+.canvas-help {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #66765e;
+  margin: 12px 0;
+}
+.note-input {
+  display: block;
+  width: 100%;
+  border: 1px solid #ccd9c7;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 10px 0;
+}
+.puzzle-canvas {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: min(100%, 480px);
+  aspect-ratio: 1;
+  gap: 2px;
+  margin: 20px auto;
+}
+.puzzle-canvas button {
+  position: relative;
+  background-size: 500% 500%;
+  border: 0;
+  touch-action: none;
+  min-width: 0;
+}
+.puzzle-canvas button[aria-pressed="true"] {
+  outline: 4px solid #e8aa35;
+  z-index: 1;
+}
+.puzzle-canvas button:focus-visible {
+  z-index: 2;
+}
+.puzzle-canvas button span {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  font-size: 10px;
+  background: #ffffffd9;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.canvas-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.canvas-actions button,
+.canvas-actions a {
+  border: 1px solid #ccd9c7;
+  color: #315c42;
+  background: #f6f9f3;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 12px;
+  text-decoration: none;
+}
+.evidence-tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.metric-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 20px 0;
+}
+.metric-row strong {
+  display: block;
+  font-size: 24px;
+  font-weight: 500;
+}
+.metric-row span {
+  display: block;
+  font-size: 11px;
+  color: #65775f;
+  margin-top: 8px;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  text-align: left;
+}
+th,
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e1e6df;
+  white-space: nowrap;
+}
+caption {
+  text-align: left;
+  font-size: 12px;
+  color: #697a60;
+  padding: 10px;
+}
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.history-grid article {
+  border: 1px solid #e1e6df;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 230px;
+}
+.history-grid a {
+  text-decoration: none;
+  font-size: 12px;
+}
+.history-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+.history-grid p,
+.history-grid label {
+  font-size: 11px;
+  color: #65775f;
+  line-height: 1.7;
+}
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.comparison-grid img {
+  width: 100%;
+}
+.comparison-grid figcaption {
+  font-size: 12px;
+  margin: 10px 0;
+}
+
 :root {
   --paper: #f7f8f4;
   --ink: #203a32;

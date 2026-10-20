@@ -42,6 +42,14 @@ Phase 10 adds PostgreSQL puzzle, job and result metadata with images on disk.
 See [database setup](docs/database.md).
 Phase 11 adds a responsive Next.js, TypeScript and Tailwind frontend for fragment
 uploads, solver selection and viewing saved reconstructions. See [frontend setup](docs/frontend.md).
+Phases 12–17 add an interactive puzzle grid, saved human correction versions,
+bounded background jobs, relative edge evidence, reconstruction history and
+comparison, an analytics API, and PNG/JSON/CSV/ZIP downloads. See the
+[implementation and verification report](docs/phases_12_17.md).
+After moving or shuffling tiles, **Reconstruct again** runs a new attempt with
+the same pieces, without another upload. **Restore solver result** immediately
+returns to the existing arrangement. Save manual corrections before rerunning
+if you want to keep that layout; a new attempt does not guarantee improvement.
 
 ## Run the web application (Windows PowerShell)
 
@@ -192,7 +200,7 @@ Start the approved Phase 9 API from the project root:
 
 Open `http://127.0.0.1:8000/docs` to upload 25 fragments. The service uses the
 existing local checkpoint and stores results under `artifacts/api_results`.
-Dataset split assignments are preserved to prevent leakage. Phases 10 and 11
-are implemented; Phase 12 (interactive reconstruction canvas) requires approval.
+Dataset split assignments are preserved to prevent leakage. Phases 0–17 are
+implemented. Phase 18 (Docker and deployment) requires separate approval.
 =======
 >>>>>>> 7049350eb76aa1a2bcc02020438f619545b7726a

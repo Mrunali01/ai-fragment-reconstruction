@@ -35,6 +35,30 @@ For system Node installations, use Node 24 LTS and run `npm ci` followed by
 5. View or save the reconstructed PNG. The URL contains its result ID; reloading
    retrieves saved metadata and the image. Original uploaded fragments are not
    retained across reloads, so the preview panel starts empty after a reload.
+6. In **Arrange the pieces**, select two tiles to swap, drag a tile onto another,
+   or use Tab and Enter. Undo and **Restore solver result** are available;
+   Escape clears selection. Restore brings back the existing solver arrangement
+   immediately without running it again.
+7. Save a human correction with an optional note. Select saved versions to reload,
+   compare with the original, or download the corrected PNG or report bundle.
+8. Inspect relative border evidence, browse history, compare two attempts made
+   from the same uploaded piece files, and export results. The activity statistics
+   panel has been removed from the UI; the analytics API remains available.
+
+After moving or shuffling tiles, **Reconstruct again** runs a new attempt using
+those same pieces in their current grid order. It works even after a page reload,
+without re-uploading fragments. The green button is directly beneath the grid,
+beside **Undo move** and **Restore solver result**. Expand **Solver options**
+there to choose the method/search if needed.
+The solver is free to move all pieces; manual positions are not locked. Save a
+correction first to preserve your current manual layout. The new attempt appears
+in history and records its source result and source order. Repeating a method can
+return the same arrangement and does not guarantee a better result.
+
+The frontend now uses `POST /jobs` and receives 202 before reconstruction finishes.
+It polls real queued/running/completed/failed state. A `?job=` link can resume
+tracking on reload; completion changes it to `?result=`. There are no fake progress
+percentages. The legacy synchronous reconstruction API remains supported.
 
 The browser checks count, filename extension, byte size and decoded dimensions.
 FastAPI remains authoritative for content format, RGB mode, frame count and
@@ -54,7 +78,7 @@ This sample is for demonstrating the UI, not new evidence of model generalizatio
 without uploading anything until reconstruction is requested, and are revoked
 when files change. `lib/api.ts` holds shared response types, readable API error
 handling and input checks. A `FormData` upload reaches the existing FastAPI
-pipeline through `/api/reconstructions`; the response identifies the saved PNG.
+pipeline through `/api/jobs`; polling retrieves the completed result and its PNG.
 
 `next.config.ts` proxies `/api/*` to `http://127.0.0.1:8000/*`, using Next.js
 [external rewrites](https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites).
@@ -80,12 +104,13 @@ Playwright starts a production frontend on port 3000 and checks file count and
 size validation, keyboard focus, a 390px mobile layout, previews, loading,
 busy/retry and offline/model-unavailable states. Those error scenarios use
 explicitly mocked HTTP responses. The live test uses the real trained CNN,
-API and PostgreSQL: it uploads all sample pieces, receives 201, checks unique
+API and PostgreSQL: it uploads all sample pieces, receives 202, checks unique
 placements and a 320px image, then reloads the persisted result without a
 JavaScript page error. Without `JIGSAW_LIVE_TEST=1`, only that live test is skipped.
 Screenshots and its response JSON are written under ignored `artifacts/frontend`.
 
-This phase provides uploading and result viewing. It retains the current 5 × 5
-solver constraint. Interactive piece selection/movement, saved corrections,
-background jobs, confidence overlays and history browsing belong to later phases.
-The app is a local development application without user accounts or access control.
+Phases 12–17 browser tests additionally cover keyboard/mouse/touch interaction,
+all-piece uniqueness, evidence visibility, saving/reloading correction versions,
+ZIP download, side-by-side history comparison and job URL recovery. See the
+[completion report](phases_12_17.md). The app retains the current 5 × 5 solver
+constraint and remains a local application without user accounts or access control.

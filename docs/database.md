@@ -27,7 +27,9 @@ powershell -ExecutionPolicy Bypass -File scripts/stop-database.ps1
 
 For an existing PostgreSQL server, set `JIGSAW_DATABASE_URL` to its connection URL
 before running Uvicorn. The role needs permission to create tables on first run.
-Version 1 tables initialize transactionally and idempotently at startup; future
+Schema version 2 adds `workspace_records` for append-only human correction
+versions and persistent background job states. Existing version 1 databases
+upgrade transactionally at startup; repeated initialization is idempotent. Future
 schema changes need an explicit migration. A configured unreachable database
 prevents startup. Unset the variable to retain Phase 9 filesystem-only behavior;
 there is no automatic fallback when a configured database fails. Old filesystem
@@ -38,9 +40,13 @@ and commits result metadata plus `completed` status in one database transaction.
 Handled solver/storage errors mark it `failed`; a database completion error removes
 the newly created result files. PostgreSQL and the filesystem cannot share one
 atomic transaction: a process crash can leave a `running` job or orphaned files.
-Recovery and background workers are outside this phase. One request currently
+Background job state now survives restart; interrupted queued/running work is
+marked failed with an explanation, not resumed. Correction images live under
+`{result_id}/corrections/{correction_id}.png`; their version metadata is stored in
+PostgreSQL. History and analytics read stored completed results. One request
 creates one puzzle and one job; retrying creates a new ID. Originals are processed
-in memory and not retained. No history listing or correction features are added.
+in memory and not retained. See [Phases 12–17](phases_12_17.md) for the local worker
+and cross-filesystem transaction limitations. Use one API worker per result root.
 
 ## Verification
 

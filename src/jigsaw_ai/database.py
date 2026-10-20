@@ -9,7 +9,7 @@ from jigsaw_ai.api_schemas import ReconstructionResponse
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS jigsaw_schema (version integer PRIMARY KEY);
-INSERT INTO jigsaw_schema VALUES (1) ON CONFLICT DO NOTHING;
+INSERT INTO jigsaw_schema SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM jigsaw_schema);
 CREATE TABLE IF NOT EXISTS puzzles (
     id uuid PRIMARY KEY,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -31,6 +31,15 @@ CREATE TABLE IF NOT EXISTS reconstruction_results (
     image_path text NOT NULL,
     metadata jsonb NOT NULL
 );
+CREATE TABLE IF NOT EXISTS workspace_records (
+    kind text NOT NULL CHECK (kind IN ('correction', 'job')),
+    id uuid NOT NULL,
+    result_id uuid,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    payload jsonb NOT NULL,
+    PRIMARY KEY (kind, id)
+);
+CREATE INDEX IF NOT EXISTS workspace_records_result ON workspace_records(result_id);
 """
 
 
@@ -45,8 +54,35 @@ class PostgresStore:
         with self.connect() as connection:
             connection.execute(SCHEMA)
             versions = connection.execute("SELECT version FROM jigsaw_schema").fetchall()
-            if versions != [(1,)]:
+            if versions not in ([(1,)], [(2,)]):
                 raise RuntimeError("Unsupported Jigsaw database schema version")
+            connection.execute("UPDATE jigsaw_schema SET version=2 WHERE version=1")
+
+    def save_record(self, kind: str, record: dict) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                "INSERT INTO workspace_records(kind,id,result_id,payload) VALUES (%s,%s,%s,%s) "
+                "ON CONFLICT(kind,id) DO UPDATE SET result_id=excluded.result_id,payload=excluded.payload",
+                (kind, record["id"], record.get("result_id"), Jsonb(record)),
+            )
+
+    def get_record(self, kind: str, record_id: UUID) -> dict | None:
+        with self.connect() as connection:
+            row = connection.execute("SELECT payload FROM workspace_records WHERE kind=%s AND id=%s", (kind, record_id)).fetchone()
+        return row[0] if row else None
+
+    def records(self, kind: str, result_id: UUID | None = None, limit: int = 100, offset: int = 0) -> list[dict]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT payload FROM workspace_records WHERE kind=%s AND (%s::uuid IS NULL OR result_id=%s) "
+                "ORDER BY created_at DESC,id DESC LIMIT %s OFFSET %s", (kind, result_id, result_id, limit, offset),
+            ).fetchall()
+        return [row[0] for row in rows]
+
+    def history(self, limit: int, offset: int) -> list[dict]:
+        with self.connect() as connection:
+            rows = connection.execute("SELECT metadata FROM reconstruction_results ORDER BY (metadata->>'created_at') DESC,job_id DESC LIMIT %s OFFSET %s", (limit, offset)).fetchall()
+        return [row[0] for row in rows]
 
     def start(self, job_id: UUID, inputs: list[dict], scorer: str, search: str) -> None:
         with self.connect() as connection:

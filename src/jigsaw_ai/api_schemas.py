@@ -38,3 +38,7 @@ class ReconstructionResponse(BaseModel):
     mean_border_cost: float = Field(description="Optimization cost; not a confidence or accuracy estimate", allow_inf_nan=False)
     checkpoint_sha256: str | None
     image_url: str
+    diagnostics: dict | None = None
+    duration_seconds: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    source_result_id: UUID | None = None
+    source_order: list[int] | None = None
