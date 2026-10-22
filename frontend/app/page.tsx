@@ -58,7 +58,6 @@ export default function Home() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [imageError, setImageError] = useState(false);
-  const [sample, setSample] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
   async function checkHealth() {
@@ -84,13 +83,12 @@ export default function Home() {
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [files]);
 
-  async function selectFiles(selected: File[], isSample = false) {
+  async function selectFiles(selected: File[]) {
     setChecking(true);
     setError("");
     try {
       await validateFiles(selected);
       setFiles(selected);
-      setSample(isSample);
       setResult(null);
       setImageError(false);
       window.history.replaceState(null, "", window.location.pathname);
@@ -118,7 +116,7 @@ export default function Home() {
           return new File([await response.blob()], name, { type: "image/png" });
         }),
       );
-      await selectFiles(pieces, true);
+      await selectFiles(pieces);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sample unavailable.");
     } finally {
@@ -346,27 +344,25 @@ export default function Home() {
                   </button>
                 </div>
               )}
-              {sample && (
-                <p className="attribution">
-                  Sample:{" "}
-                  <a
-                    href="https://www.flickr.com/photos/philon/2461050066"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    “Scratch” by Philo Nordlund
-                  </a>{" "}
-                  ·{" "}
-                  <a
-                    href="https://creativecommons.org/licenses/by/2.0/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    CC BY 2.0
-                  </a>
-                  . Resized, cropped and sliced.
-                </p>
-              )}
+              <p className="attribution">
+                Sample:{" "}
+                <a
+                  href="https://www.flickr.com/photos/philon/2461050066"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  “Scratch” by Philo Nordlund
+                </a>{" "}
+                ·{" "}
+                <a
+                  href="https://creativecommons.org/licenses/by/2.0/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  CC BY 2.0
+                </a>
+                . Resized, cropped and sliced.
+              </p>
               <div className="settings">
                 <label htmlFor="scorer">Matching method</label>
                 <select
@@ -531,35 +527,7 @@ export default function Home() {
         </div>
         {result && <CorrectionWorkspace key={result.id} result={result} />}
         <ReconstructionHistory refreshKey={result?.id ?? "initial"} />
-        <section className="process-strip" aria-label="How it works">
-          <div>
-            <span>01 / UPLOAD</span>
-            <p>A full set of square fragments.</p>
-          </div>
-          <div>
-            <span>02 / CONNECT</span>
-            <p>AI looks for neighboring edges.</p>
-          </div>
-          <div>
-            <span>03 / RECONSTRUCT</span>
-            <p>The picture comes into focus.</p>
-          </div>
-        </section>
       </main>
-      <footer className="site-footer">
-        <span>JIGSAW AI</span>
-        <p>Finding connections, one piece at a time.</p>
-        <span>BUILT WITH CURIOSITY ↗</span>
-      </footer>
-      <p className="sample-credit">
-        Sample image:{" "}
-        <a href="https://www.flickr.com/photos/philon/2461050066">
-          “Scratch” by Philo Nordlund
-        </a>
-        {" · "}
-        <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>.
-        Resized, cropped and sliced into fragments.
-      </p>
     </div>
   );
 }

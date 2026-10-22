@@ -284,7 +284,7 @@ a {
 .page-shell {
   max-width: 1220px;
   margin: auto;
-  padding: 0 32px;
+  padding: 0 32px 32px;
 }
 .hero {
   display: flex;
@@ -680,54 +680,7 @@ h1 em {
   line-height: 1.7;
   margin-top: 13px;
 }
-.process-strip {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin: 32px 0 48px;
-  padding: 23px 0;
-  border-bottom: 1px solid var(--border);
-  border-top: 1px solid var(--border);
-}
-.process-strip > div {
-  padding: 0 24px;
-  border-right: 1px solid var(--border);
-}
-.process-strip > div:first-child {
-  padding-left: 0;
-}
-.process-strip > div:last-child {
-  border: 0;
-}
-.process-strip span {
-  font-size: 9px;
-  letter-spacing: 1.1px;
-  color: #76866e;
-}
-.process-strip p {
-  font-size: 11px;
-  color: #949c8d;
-  margin: 8px 0 0;
-}
-.site-footer {
-  max-width: 1220px;
-  padding: 0 32px 28px;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #99a18f;
-  gap: 15px;
-}
-.site-footer > span {
-  font-size: 8px;
-  letter-spacing: 1px;
-}
-.site-footer p {
-  font:
-    italic 12px Georgia,
-    serif;
-  margin: 0;
-}
+
 .spinner {
   width: 14px;
   height: 14px;
@@ -744,18 +697,7 @@ h1 em {
     transform: rotate(360deg);
   }
 }
-.sample-credit {
-  max-width: 1220px;
-  margin: 0 auto;
-  padding: 0 32px 24px;
-  color: #76816f;
-  font-size: 10px;
-  line-height: 1.7;
-}
-.sample-credit a {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
+
 @keyframes pulse {
   to {
     opacity: 0.3;
@@ -771,7 +713,7 @@ h1 em {
     padding: 0 22px;
   }
   .page-shell {
-    padding: 0 20px;
+    padding: 0 20px 24px;
   }
   .hero {
     padding: 42px 0 35px;
@@ -793,27 +735,7 @@ h1 em {
   .result-stage {
     min-height: 330px;
   }
-  .process-strip {
-    gap: 14px;
-    margin-bottom: 26px;
-  }
-  .process-strip > div {
-    padding: 0 8px;
-  }
-  .process-strip span {
-    font-size: 8px;
-  }
-  .process-strip p {
-    font-size: 10px;
-    line-height: 1.7;
-  }
-  .site-footer {
-    padding: 0 20px 24px;
-    flex-wrap: wrap;
-  }
-  .site-footer > span:last-child {
-    display: none;
-  }
+
   .workspace-heading > span {
     font-size: 10px;
   }
